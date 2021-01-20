@@ -1,0 +1,44 @@
+---
+- name: UPGRADE ROUTER FIRMWARE
+  hosts: all
+  gather_facts: no
+
+  vars:
+    ios_version: "{{ ios_version }}"
+    ios_filename: "{{ ios_filename }}"
+
+  tasks:
+    - name: GATHER ROUTER FACTS
+      ios_facts:
+
+    - name: UPGRADE IOS IMAGE IF NON MATCHING
+      block:
+      - name: COPY OVER IOS IMAGE
+        command: "scp system-image-filename.bin {{ inventory_hostname }}:/{{ ios_filename }}"
+
+      - name: SET BOOT SYSTEM FLASH
+        ios_config:
+          commands:
+            - "boot system flash:{{ ios_filename }}"
+
+      - name: REBOOT ROUTER
+        ios_command:
+          commands:
+            - "reload\n"
+
+      - name: WAIT FOR ROUTER TO RETURN
+        wait_for:
+          host: "{{ inventory_hostname }}"
+          port: 22
+          delay: 60
+        delegate_to: localhost
+
+      when: ansible_net_version != ios_version
+
+    - name: GATHER ROUTER FACTS FOR VERIFICATION
+      ios_facts:
+
+    - name: ASSERT THAT THE IOS VERSION IS CORRECT
+      assert:
+        that:
+          - ios_version == ansible_net_version

@@ -1,0 +1,13 @@
+---
+- name: Show inventory on IOS
+  hosts: all
+  gather_facts: no
+  
+  tasks:
+  - name: Show inventory
+    ios_command:
+      commands: "show inventory"
+    register: result
+      
+  - name: Display output
+    debug: var=result.stdout_lines

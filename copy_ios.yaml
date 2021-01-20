@@ -1,0 +1,21 @@
+---
+- name: Download router firmware
+  hosts: all
+  gather_facts: no
+
+  vars:
+    file_url: "{{ file_url }}"
+    ios_filename: "{{ ios_filename }}"
+
+  tasks:
+  - name: Disable file prompts
+    ios_config:
+      commands: file prompt quiet
+    
+  - name: Copy file to flash from HTTP
+    ios_command:
+      commands: "copy /noverify {{ file_url }} flash:{{ ios_filename }}"
+  
+  - name: Enable file prompts
+    ios_config:
+      commands: file prompt alert

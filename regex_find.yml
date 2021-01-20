@@ -1,0 +1,28 @@
+---
+- hosts: all
+  vars:
+    look_for: "{{ look_for }}"
+
+  tasks:
+  - name: Show Run on Device
+    ios_command:
+      commands:
+        - show run
+    register: config
+
+#  - name: Find current instances of {{ look_for }}
+#    set_fact: _servers="{{ config.stdout[0] | regex_findall('^{{ look_for }} (\S+)', multiline=True) }}"
+  
+  - name: Display Results
+    debug:
+      msg: "{{ config.stdout[0] | regex_findall('look_for' + '.*') }}"
+#  - name: Removing all instances of {{ look_for }}
+#    ios_config:
+#      lines:
+#        - "no ntp server {{ item }}"
+#    with_items: "{{ _servers }}"
+#
+#  - name: configure new NTP server 
+#    ios_config: 
+#      lines: 
+#        - ntp server 4.5.6.7
